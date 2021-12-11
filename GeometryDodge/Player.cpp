@@ -128,7 +128,7 @@ void Player::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs)
 	std::cout << "\n\tPLAYER POSITION RECEIVED - X: " << msg0->x << ", Y: " << msg0->y << '\n'
 			  << "\tTIME RECEIVED: " << msg0->timeSent << '\n';
 
-	printf("\n\tPLAYER PREDICTED POSITION: (%.2f, %.2f), Time = %.2f\n\n", predictedX, predictedY, gameTime);
+	printf("\n\tPLAYER PREDICTED POSITION: (%.2f, %.2f), Time = %.2f\n", predictedX, predictedY, gameTime);
 
 	std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";
 

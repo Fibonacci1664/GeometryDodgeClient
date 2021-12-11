@@ -3,7 +3,7 @@
 Level::Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs) :
 	Screen(hwnd, controller_0, gs)
 {
-	isDebugMode = true;
+	isDebugMode = false;
 	localTotalGameTime = 0.0f;
 
 	//pdMsg = new PlayerDataMsg;
@@ -71,7 +71,7 @@ void Level::initLevel()
 	initBackground();
 	initUI();
 	initPlayer();
-	initAsteroids();
+	//initAsteroids();
 }
 
 void Level::initDebugMode()
@@ -132,35 +132,14 @@ void Level::spawnNewAsteroid()
 
 void Level::updateAsteroids(float dt)
 {
-
-
-
-	//Update all the asteroids using the data from the server
-	//for (int i = 0; i < asteroids.size(); ++i)
-	//{
-	//	bool oob = asteroids[i]->update(dt);
-
-	//	if (oob)
-	//	{
-	//		std::cout << "Update - Asteroid vector size is " << asteroids.size() << '\n';
-
-	//		// Create an iterator to the asteroid that has gone oob, as the asteroids all fall at the same speed
-	//		// it will always be the first in the list
-	//		auto iter1 = asteroids.begin();
-	//		// Erase it from the vector
-	//		asteroids.erase(iter1);
-
-	//		// Ensure collision box for this asteroid is also removed from the collision box vector
-	//		auto iter2 = asteroidColBoxes.begin();
-	//		asteroidColBoxes.erase(iter2);
-
-
-	//		// Decrement the player score
-	//		player1->setPlayerScore(player1->getPlayerScore() - 1);
-
-	//		std::cout << "Update - Asteroid vector size is now " << asteroids.size() << '\n';
-	//	}
-	//}
+	if (asteroidMsgs.size() > 0)
+	{
+		for (int i = 0; i < asteroids.size(); i++)
+		{
+			// Always update using back as that's the latest msg
+			asteroids[i]->update(dt, asteroidMsgs[i]);
+		}
+	}
 }
 
 //void Level::updateProjectiles(float dt)
@@ -255,10 +234,36 @@ void Level::update(float dt)
 
 	asteroidsPckt = player1->recevieAsteroidPacket();
 
+	if (asteroidMsgs.size() > 0)
+	{
+		// Clear the old data before refilling with latest data
+		asteroidMsgs.clear();
+	}
+	
+	if (asteroids.size() > 0)
+	{
+		// Delete all the old asteroids
+		for (int i = 0; i < asteroids.size(); ++i)
+		{
+			if (asteroids[i])
+			{
+				delete asteroids[i];
+				asteroids[i] = nullptr;
+			}
+		}
+
+		// Clear the asteroid vector
+		asteroids.clear();
+	}
+
 	// Fill the local vector with all the astroid data from the network packet
 	for (int i = 0; i < asteroidsPckt.asteroidDataMsgs.size(); ++i)
 	{
+		// Fill with latest data
 		asteroidMsgs.push_back(asteroidsPckt.asteroidDataMsgs[i]);
+
+		// Create as many asteroids as there have been msgs recvd, this is currently a 1 to 1 relationship to keep things simple
+		asteroids.push_back(new Asteroid(window));
 	}
 
 	// ############### LOCAL UPDATE ###############
@@ -280,17 +285,9 @@ void Level::update(float dt)
 		}
 	}
 
-	if (asteroidMsgs.size() > 0)
-	{
-		for (int i = 0; i < asteroids.size(); i++)
-		{
-			// Always update using back as that's the latest msg
-			asteroids[i]->update(dt, asteroidMsgs.back());
-		}
-	}
+	updateAsteroids(dt);
 
-	/*updateAsteroids(dt);
-	updateProjectiles(dt);*/
+	//updateProjectiles(dt);
 	//updateDebugMode();
 
 	/*if (player1->getPlayerScore() < 0)

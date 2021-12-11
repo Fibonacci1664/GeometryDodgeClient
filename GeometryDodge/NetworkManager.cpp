@@ -118,7 +118,7 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
 
                 asteroidsPckt.asteroidDataMsgs.push_back(asteroidMsg);
 
-                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG " << i << " DATA ###############\n\n";
+                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA ###############\n\n";
 
                 // Print out to make sure what has been recvd is the same data
                 std::cout << "Asteroid ID: " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << '\n'
@@ -127,7 +127,7 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
                           << "Asteroid Y: " << asteroidsPckt.asteroidDataMsgs[i]->y << '\n'
                           << "Bytes received: " << received << "\n";
 
-                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG " << i << " DATA END ###############\n";
+                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA END ###############\n";
             }
 
             // Finally set the size in the Asteroid Data Packet to be the correct size
