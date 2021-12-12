@@ -23,6 +23,7 @@ public:
 	Player_UI_Data_Packet receivePlayerUIPacket();
 	Asteroids_Data_Packet recevieAsteroidPacket();
 	Projectiles_Data_Packet recevieProjectilesPacket();
+	int receiveGameState();
 
 private:
 	//sf::IpAddress SERVERIP = "127.0.0.1";
@@ -35,5 +36,6 @@ private:
 	Player_UI_Data_Packet playerUIpckt;
 	Asteroids_Data_Packet asteroidsPckt;
 	Projectiles_Data_Packet projectilesPckt;
+	int gameState;
 };
 

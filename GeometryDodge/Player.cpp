@@ -45,6 +45,11 @@ Projectiles_Data_Packet Player::recevieProjectilesPacket()
 	return projectilesPckt;
 }
 
+int Player::receiveGameState()
+{
+	return network->receiveGameState();
+}
+
 void Player::update(float dt, PlayerDataMsg* pdm)
 {
 	// Update the player with data from server

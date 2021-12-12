@@ -135,14 +135,14 @@ void Level::update(float dt)
 		syncedTotalGameTime = playerUIpckt.playerData.timeSent;
 		timeSynced = true;
 	}
-	
+
 	uidMsg = &playerUIpckt.uiData;
 
 	// Create a unique mem addr for this data
 	PlayerDataMsg* pdMsg = new PlayerDataMsg;
 	// Fill this mem address with the latest player data from the network
 	*pdMsg = playerUIpckt.playerData;
-	
+
 	// Add the current player data msg to the list of player data messages
 	playerMsgs.push_back(pdMsg);
 
@@ -162,7 +162,7 @@ void Level::update(float dt)
 		// Clear the old data before refilling with latest data
 		asteroidMsgs.clear();
 	}
-	
+
 	if (asteroids.size() > 0)
 	{
 		// Delete all the old asteroids
@@ -250,6 +250,14 @@ void Level::update(float dt)
 
 	updateAsteroids(dt);
 	updateProjectiles(dt);
+
+	//// Check this after ALL other recvs are complete
+	//int currentGameState = player1->receiveGameState();
+
+	//if (currentGameState == 2)
+	//{
+	//	gameState->setCurrentState(State::GAMEOVER);
+	//}
 }
 
 void Level::renderAsteroids()

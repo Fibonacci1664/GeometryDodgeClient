@@ -25,9 +25,7 @@ public:
 	Player_UI_Data_Packet receivePlayerUIPacket();
 	Asteroids_Data_Packet recevieAsteroidPacket();
 	Projectiles_Data_Packet recevieProjectilesPacket();
-	/*UIDataMsg* recveiveUIData();
-	PlayerDataMsg* receivePlayerData();*/
-	//GameWorldData recieveWorldData();
+	int receiveGameState();
 
 	void runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs);
 	sf::Vector2f linearPrediction(float gameTime, const PlayerDataMsg* msg0, const PlayerDataMsg* msg1);// , const PlayerDataMsg* msg2);

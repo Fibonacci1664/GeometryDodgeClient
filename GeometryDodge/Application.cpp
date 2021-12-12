@@ -42,19 +42,21 @@ void Application::initWindow()
 void Application::run()
 {
     gameState.setCurrentState(State::MENU);
+    bool isGameOver = false;
 
     // Run the program as long as the window is open
     while (window.isOpen())
     {
         level = new Level(&window, &input, &gameState);
         menu = new Menu(&window, &input, &gameState);
+        gameOver = new GameOver(&window, &input, &gameState);
 
         // Initialise objects for delta time
         sf::Clock clock;
         float deltaTime;
 
         // If the game isn't over, keep processing stuff
-        while (gameState.getCurrentState() != State::GAMEOVER)
+        while (!isGameOver)
         {
             processWindowEvents();
 
@@ -62,14 +64,31 @@ void Application::run()
             // since it was last calculated (in seconds) and restart the clock.
             deltaTime = clock.restart().asSeconds();
 
-            runGameLoop(level, menu, deltaTime);
+            isGameOver = runGameLoop(level, menu, gameOver, deltaTime);
         }
 
         // Destroy all old game objects, except gameState
-        break;
+        if (level)
+        {
+            delete level;
+            level = nullptr;
+        }
+
+        if (menu)
+        {
+            delete menu;
+            menu = nullptr;
+        }
+
+        if (gameOver)
+        {
+            delete gameOver;
+            gameOver = nullptr;
+        }
 
         // Set game back to main menu - TO DO
-        //gameState->setCurrentState(State::MENU);
+        gameState.setCurrentState(State::MENU);
+        isGameOver = false;
     }
 }
 
@@ -138,8 +157,10 @@ void Application::processWindowEvents()
     }
 }
 
-void Application::runGameLoop(Level* level, Menu* menu, float deltaTime)
+bool Application::runGameLoop(Level* level, Menu* menu, GameOver* gameOver, float deltaTime)
 {
+    bool gameEnd = false;
+
     switch (gameState.getCurrentState())
     {
         case(State::MENU):
@@ -158,14 +179,21 @@ void Application::runGameLoop(Level* level, Menu* menu, float deltaTime)
         }
         case(State::GAMEOVER):
         {
+            displayGameOverTimer += deltaTime;
+            gameOver->update(deltaTime);
+            gameOver->render();
+            break;
+
             break;
         }
-        case(State::PAUSE):
-        {
-            /* pause->handleInput(deltaTime);
-             pause->update(deltaTime);
-             pause->render();
-             break;*/
-        }
     }
+
+    // This controls showing the gameover screen for 5 secs
+    if (displayGameOverTimer > 5.0f)
+    {
+        displayGameOverTimer = 0.0f;
+        return true;
+    }
+
+    return false;
 }

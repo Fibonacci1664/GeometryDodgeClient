@@ -224,3 +224,21 @@ Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
 
     return projectilesPckt;
 }
+
+int NetworkManager::receiveGameState()
+{
+    if (selector.wait())
+    {
+        if (selector.isReady(tcpSocket))
+        {
+            // Carry out a recv of the game state, this is just a single int
+            if (tcpSocket.receive(&gameState, sizeof(int), received) != sf::Socket::Done)
+            {
+                std::cout << "Client side error receiving game state using TCP!\n";
+                return -1;
+            }
+        }
+    }
+
+    return gameState;
+}
