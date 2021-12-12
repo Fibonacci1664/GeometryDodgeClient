@@ -1,8 +1,5 @@
 // THIS IS THE NEW CLIENT
-
 // THIS RECVS DATA FROM THE SEVER AND SIMPLY MIRRORS WHAT IS HAPPENING SERVER SIDE
-
-// NEED TO CARRY OUT PLAYER PREDICTION ON THIS SIDE
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
@@ -11,6 +8,9 @@
 
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
+
+// Set this if you wish to see all recvd data printed to the console, doing so will slow down the application
+bool printDataToConsole = false;
 
 int main()
 {

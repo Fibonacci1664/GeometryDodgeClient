@@ -30,17 +30,9 @@ private:
 
 	void updateAsteroids(float dt);
 	void updateProjectiles(float dt);
-	//void updateDebugMode();
 
 	void renderAsteroids();
 	void renderProjectiles();
-	//void renderDebugMode();
-
-	//void spawnNewAsteroid();
-
-	//void checkCollisions();
-
-	//void createNewAsteroidColBox();
 
 	void beginDraw();
 	void endDraw();
@@ -53,14 +45,9 @@ private:
 	std::vector<Projectile*> projectiles;
 	sf::Texture bgTexture;
 	sf::Sprite bgSprite;
-	//sf::RectangleShape player1ColBox;
-	//std::vector<sf::RectangleShape> asteroidColBoxes;
-	//std::vector<sf::RectangleShape> projectileColBoxes;
 
 	// #### NETWORK STUFF ####
 	NetworkManager* network;
-	// For recv player data into
-	//PlayerDataMsg* pdMsg;
 	// For player prediction
 	std::list<PlayerDataMsg*> playerMsgs;
 	// For recv UI data into

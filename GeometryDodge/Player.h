@@ -10,6 +10,8 @@
 #include <list>
 #include "Projectiles_Data_Packet.h"
 
+extern bool printDataToConsole;
+
 class Player
 {
 public:

@@ -52,16 +52,19 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
                 return playerUIpckt;
             }
 
-           /* std::cout << "Client side received: " << received << " bytes\n";
+            if(printDataToConsole)
+            {
+                 std::cout << "Client side received: " << received << " bytes\n";
 
-            std::cout << "Score: " << playerUIpckt.uiData.score << "\n";
-
-            std::cout << "Player " << playerUIpckt.playerData.playerID << "\n"
-                << "Msg time sent: " << playerUIpckt.playerData.timeSent << '\n'
-                << "Player X: " << playerUIpckt.playerData.x << '\n'
-                << "Player Y: " << playerUIpckt.playerData.y << '\n';
-
-            std::cout << "\n############### PLAYER AND UI DATA END ###############\n";*/
+                 std::cout << "Score: " << playerUIpckt.uiData.score << "\n";
+                 
+                 std::cout << "Player " << playerUIpckt.playerData.playerID << "\n"
+                           << "Msg time sent: " << playerUIpckt.playerData.timeSent << '\n'
+                           << "Player X: " << playerUIpckt.playerData.x << '\n'
+                           << "Player Y: " << playerUIpckt.playerData.y << '\n';
+                 
+                 std::cout << "\n############### PLAYER AND UI DATA END ###############\n";
+            }
         }
     }
 
@@ -74,7 +77,10 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
     {
         if (selector.isReady(tcpSocket))
         {
-            //std::cout << "\n############### ASTEROID VECTOR SIZE DATA ###############\n\n";
+            if (printDataToConsole)
+            {
+                std::cout << "\n############### ASTEROID VECTOR SIZE DATA ###############\n\n";
+            }
 
             // Carry out a recv of the asteroid data msg vector size, this is just a single int
             if (tcpSocket.receive(&asteroidsPckt.asteroidDataMsgSize, sizeof(int), received) != sf::Socket::Done)
@@ -82,24 +88,27 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
                 std::cout << "Client side error receiving asteroids msgs vector size using TCP!\n";
                 return asteroidsPckt;
             }
-            else
+
+            if (printDataToConsole)
             {
-                //std::cout << "Asteroid data msg vector size: " << asteroidsPckt.asteroidDataMsgSize << '\n';
+                std::cout << "Asteroid data msg vector size: " << asteroidsPckt.asteroidDataMsgSize << '\n';
+
+                std::cout << "\n############### ASTEROID VECTOR SIZE DATA END ###############\n";
             }
-
-            //std::cout << "\n############### ASTEROID VECTOR SIZE DATA END ###############\n";
-
+                
             int size = asteroidsPckt.asteroidDataMsgSize;
 
-            //std::cout << "\n############### ALL ASTEROID DATA ###############\n";
-
-            if (size == 0)
+            if (printDataToConsole)
             {
-               //std::cout << "\n############### NO ASTEROID DATA TO RECEIVE ###############\n\n";
+                std::cout << "\n############### ALL ASTEROID DATA ###############\n";
             }
 
-            // As we recv the latest 5 msgs everytime we need to clear the old data before repopulating the vec
-            // Otherwise we end up with duplicates.
+            if (size == 0 && printDataToConsole)
+            {
+               std::cout << "\n############### NO ASTEROID DATA TO RECEIVE ###############\n\n";
+            }
+
+            // Clear the old data
             asteroidsPckt.asteroidDataMsgs.clear();
 
             // Carry out a loop to recv all asteroid data from the packet
@@ -116,16 +125,19 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
 
                 asteroidsPckt.asteroidDataMsgs.push_back(asteroidMsg);
 
-                //std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA ###############\n\n";
+                if (printDataToConsole)
+                {
+                    std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA ###############\n\n";
 
-                // Print out to make sure what has been recvd is the same data
-                /*std::cout << "Asteroid ID: " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << '\n'
-                          << "Msg time sent: " << asteroidsPckt.asteroidDataMsgs[i]->timeSent << '\n'
-                          << "Asteroid X: " << asteroidsPckt.asteroidDataMsgs[i]->x << '\n'
-                          << "Asteroid Y: " << asteroidsPckt.asteroidDataMsgs[i]->y << '\n'
-                          << "Bytes received: " << received << "\n";
+                    //Print out to make sure what has been recvd is the same data
+                    std::cout << "Asteroid ID: " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << '\n'
+                              << "Msg time sent: " << asteroidsPckt.asteroidDataMsgs[i]->timeSent << '\n'
+                              << "Asteroid X: " << asteroidsPckt.asteroidDataMsgs[i]->x << '\n'
+                              << "Asteroid Y: " << asteroidsPckt.asteroidDataMsgs[i]->y << '\n'
+                              << "Bytes received: " << received << "\n";
 
-                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA END ###############\n";*/
+                    std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA END ###############\n";
+                }
             }
 
             // Finally set the size in the Asteroid Data Packet to be the correct size
@@ -142,32 +154,38 @@ Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
     {
         if (selector.isReady(tcpSocket))
         {
-            //std::cout << "\n############### PROJECTILE VECTOR SIZE DATA ###############\n\n";
-
+            if (printDataToConsole)
+            {
+                std::cout << "\n############### PROJECTILE VECTOR SIZE DATA ###############\n\n";
+            }
+            
             // Carry out a recv of the projectile data msg vector size, this is just a single int
             if (tcpSocket.receive(&projectilesPckt.projectileDataMsgSize, sizeof(int), received) != sf::Socket::Done)
             {
                 std::cout << "Client side error receiving projectile msgs vector size using TCP!\n";
                 return projectilesPckt;
             }
-            else
-            {
-                //std::cout << "Projectile data msg vector size: " << projectilesPckt.projectileDataMsgSize << '\n';
-            }
 
-            //std::cout << "\n############### PROJECTILE VECTOR SIZE DATA END ###############\n";
+            if (printDataToConsole)
+            {
+                std::cout << "Projectile data msg vector size: " << projectilesPckt.projectileDataMsgSize << '\n';
+
+                std::cout << "\n############### PROJECTILE VECTOR SIZE DATA END ###############\n";
+            }
 
             int size = projectilesPckt.projectileDataMsgSize;
 
-            //std::cout << "\n############### ALL PROJECTILE DATA ###############\n";
-
-            if (size == 0)
+            if (printDataToConsole)
             {
-                //std::cout << "\n############### NO PROJECTILE DATA TO RECEIVE ###############\n\n";
+                std::cout << "\n############### ALL PROJECTILE DATA ###############\n";
             }
 
-            // As we recv the latest 5 msgs everytime we need to clear the old data before repopulating the vec
-            // Otherwise we end up with duplicates.
+            if (size == 0 && printDataToConsole)
+            {
+                std::cout << "\n############### NO PROJECTILE DATA TO RECEIVE ###############\n\n";
+            }
+
+            // Clear old data
             projectilesPckt.projectileDataMsgs.clear();
 
             // Carry out a loop to recv all projectile data from the packet
@@ -184,16 +202,19 @@ Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
 
                 projectilesPckt.projectileDataMsgs.push_back(projectileMsg);
 
-                //std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA ###############\n\n";
+                if (printDataToConsole)
+                {
+                    std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA ###############\n\n";
 
-                //// Print out to make sure what has been recvd is the same data
-                //std::cout << "Projectile ID: " << projectilesPckt.projectileDataMsgs[i]->projectileID << '\n'
-                //    << "Msg time sent: " << projectilesPckt.projectileDataMsgs[i]->timeSent << '\n'
-                //    << "Projectile X: " << projectilesPckt.projectileDataMsgs[i]->x << '\n'
-                //    << "Projectile Y: " << projectilesPckt.projectileDataMsgs[i]->y << '\n'
-                //    << "Bytes received: " << received << "\n";
+                    // Print out to make sure what has been recvd is the same data
+                    std::cout << "Projectile ID: " << projectilesPckt.projectileDataMsgs[i]->projectileID << '\n'
+                              << "Msg time sent: " << projectilesPckt.projectileDataMsgs[i]->timeSent << '\n'
+                              << "Projectile X: " << projectilesPckt.projectileDataMsgs[i]->x << '\n'
+                              << "Projectile Y: " << projectilesPckt.projectileDataMsgs[i]->y << '\n'
+                              << "Bytes received: " << received << "\n";
 
-                //std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA END ###############\n";
+                    std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA END ###############\n";
+                }
             }
 
             // Finally set the size in the Projectile Data Packet to be the correct size

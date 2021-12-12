@@ -11,6 +11,7 @@
 #include "Projectiles_Data_Packet.h"
 
 extern sf::IpAddress SERVERIP;
+extern bool printDataToConsole;
 
 class NetworkManager
 {

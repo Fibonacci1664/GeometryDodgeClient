@@ -74,7 +74,6 @@ void Player::initGhost()
 	playerGhostSprite.setOrigin(size.x * 0.5f, size.y * 0.5f);
 	playerGhostSprite.setPosition(sf::Vector2f(645.0f, 645.0f));
 	playerGhostSprite.setScale(0.75f, 0.75f);
-	//collisionBox = sf::FloatRect(playerGhostSprite.getPosition().x - size.x * 0.4f, playerGhostSprite.getPosition().y - size.y * 0.4f, size.x * 0.8f, size.y * 0.8f);
 }
 
 void Player::loadTexture()
@@ -103,21 +102,23 @@ void Player::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs)
 
 	const PlayerDataMsg* msg0 = plyrMsgs[size_t(msize) - 1];		// Latest msg
 	const PlayerDataMsg* msg1 = plyrMsgs[size_t(msize) - 2];
-	//const PlayerDataMsg* msg2 = plyrMsgs[size_t(msize) - 3];		// Oldest msg
 
 	sf::Vector2f predictedVec = linearPrediction(gameTime, msg0, msg1);// , msg2);
 
 	predictedX = predictedVec.x;
 	predictedY = predictedVec.y;
 
-	/*std::cout << "\n############### PLAYER PREDICTIONS ###############\n";
+	if (printDataToConsole)
+	{
+		std::cout << "\n############### PLAYER PREDICTIONS ###############\n";
 
-	std::cout << "\n\tPLAYER POSITION RECEIVED - X: " << msg0->x << ", Y: " << msg0->y << '\n'
-			  << "\tTIME RECEIVED: " << msg0->timeSent << '\n';
+		std::cout << "\n\tPLAYER POSITION RECEIVED - X: " << msg0->x << ", Y: " << msg0->y << '\n'
+				  << "\tTIME RECEIVED: " << msg0->timeSent << '\n';
 
-	printf("\n\tPLAYER PREDICTED POSITION: (%.2f, %.2f), Time = %.2f\n", predictedX, predictedY, gameTime);
+		printf("\n\tPLAYER PREDICTED POSITION: (%.2f, %.2f), Time = %.2f\n", predictedX, predictedY, gameTime);
 
-	std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";*/
+		std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";
+	}
 
 	// Ghost is for visualising the prediction actually working
 	playerGhostSprite.setPosition(sf::Vector2f(predictedX, predictedY));
@@ -126,7 +127,7 @@ void Player::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs)
 	//playerSprite.setPosition(sf::Vector2f(predictedX, predictedY));
 }
 
-sf::Vector2f Player::linearPrediction(float gameTime, const PlayerDataMsg* msg0, const PlayerDataMsg* msg1)//, const PlayerDataMsg* msg2)
+sf::Vector2f Player::linearPrediction(float gameTime, const PlayerDataMsg* msg0, const PlayerDataMsg* msg1)
 {
 	float predictedX = -1.0f;
 	float predictedY = -1.0f;
@@ -134,11 +135,7 @@ sf::Vector2f Player::linearPrediction(float gameTime, const PlayerDataMsg* msg0,
 	// LINEAR MODEL (VEL ONLY) using s = vt
 	sf::Vector2f deltaPos = sf::Vector2f(msg0->x - msg1->x, msg0->y - msg1->y);
 	float deltaTime = msg0->timeSent - msg1->timeSent;
-	// |v| = sqrt(a^2 + b^2)
-	//float distance = sqrt(pow(deltaPos.x, 2) + pow(deltaPos.y, 2));
 	sf::Vector2f speed = sf::Vector2f((deltaPos.x / deltaTime), (deltaPos.y / deltaTime));
-	//float speed = distance / deltaTime;
-	//sf::Vector2f displacement = speed * (gameTime - msg0->timeSent);
 	sf::Vector2f displacement = speed * deltaTime;
 
 	sf::Vector2f nextPos = sf::Vector2f(msg0->x + displacement.x, msg0->y + displacement.y);
