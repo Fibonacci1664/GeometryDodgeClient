@@ -38,25 +38,12 @@ Asteroids_Data_Packet Player::recevieAsteroidPacket()
 	return asteroidsPckt;
 }
 
-//UIDataMsg* Player::recveiveUIData()
-//{
-//	UIMsg = network->receiveUIData();
-//
-//	return UIMsg;
-//}
+Projectiles_Data_Packet Player::recevieProjectilesPacket()
+{
+	projectilesPckt = network->recevieProjectilesPacket();
 
-//GameWorldData Player::recieveWorldData()
-//{
-//	gameDataMsg = network->receiveGameWorldData();
-//
-//	return gameDataMsg;
-//}
-
-//PlayerDataMsg* Player::receivePlayerData()
-//{
-//	playerDataRecv = network->receivePlayerData();
-//	return playerDataRecv;
-//}
+	return projectilesPckt;
+}
 
 void Player::update(float dt, PlayerDataMsg* pdm)
 {
@@ -123,14 +110,14 @@ void Player::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs)
 	predictedX = predictedVec.x;
 	predictedY = predictedVec.y;
 
-	std::cout << "\n############### PLAYER PREDICTIONS ###############\n";
+	/*std::cout << "\n############### PLAYER PREDICTIONS ###############\n";
 
 	std::cout << "\n\tPLAYER POSITION RECEIVED - X: " << msg0->x << ", Y: " << msg0->y << '\n'
 			  << "\tTIME RECEIVED: " << msg0->timeSent << '\n';
 
 	printf("\n\tPLAYER PREDICTED POSITION: (%.2f, %.2f), Time = %.2f\n", predictedX, predictedY, gameTime);
 
-	std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";
+	std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";*/
 
 	// Ghost is for visualising the prediction actually working
 	playerGhostSprite.setPosition(sf::Vector2f(predictedX, predictedY));

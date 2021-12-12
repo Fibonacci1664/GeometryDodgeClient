@@ -8,6 +8,7 @@
 #include "Player_UI_Data_Packet.h"
 #include "Asteroids_Data_Packet.h"
 #include <list>
+#include "Projectiles_Data_Packet.h"
 
 class Player
 {
@@ -21,6 +22,7 @@ public:
 
 	Player_UI_Data_Packet receivePlayerUIPacket();
 	Asteroids_Data_Packet recevieAsteroidPacket();
+	Projectiles_Data_Packet recevieProjectilesPacket();
 	/*UIDataMsg* recveiveUIData();
 	PlayerDataMsg* receivePlayerData();*/
 	//GameWorldData recieveWorldData();
@@ -60,6 +62,7 @@ private:
 	AsteroidDataMsg asteroidMsg;
 	Player_UI_Data_Packet playerUIpckt;
 	Asteroids_Data_Packet asteroidsPckt;
+	Projectiles_Data_Packet projectilesPckt;
 
 	unsigned short SERVERPORT = 5555;
 	float localTotalGameTime;

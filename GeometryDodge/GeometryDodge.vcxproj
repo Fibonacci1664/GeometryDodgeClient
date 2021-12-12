@@ -172,6 +172,8 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerDataMsg.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="ProjectileDataMsg.h" />
+    <ClInclude Include="Projectiles_Data_Packet.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="UIDataMsg.h" />

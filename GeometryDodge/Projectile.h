@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "AsteroidDataMsg.h"
+#include "ProjectileDataMsg.h"
 
 class Projectile
 {
@@ -8,9 +9,7 @@ public:
 	Projectile(sf::RenderWindow* hwnd, sf::Vector2f spawnPos);
 	~Projectile();
 
-	/*GameWorldData networkUpdate(float dt, int asteroidID);
-	GameWorldData packProjectileData(float dt, int asteroidID);*/
-	bool update(float dt);
+	void update(float dt, ProjectileDataMsg* projectileMsg);
 	void render(sf::RenderWindow* window);
 	sf::Sprite* getProjectileSprite();
 	sf::FloatRect getCollisionBox();
@@ -35,5 +34,4 @@ private:
 	int randXPos;
 	int randYPos;
 	float localTotalGameTime = 0.0f;
-	//GameWorldData gwdMsg;
 };

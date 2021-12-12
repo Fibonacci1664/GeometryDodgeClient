@@ -3,22 +3,13 @@
 Level::Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs) :
 	Screen(hwnd, controller_0, gs)
 {
-	isDebugMode = false;
 	localTotalGameTime = 0.0f;
 
-	//pdMsg = new PlayerDataMsg;
 	uidMsg = new UIDataMsg;
 
 	initLevel();
 
 	playerUIpckt.uiData = *uidMsg;
-	//playerUIpckt.playerData = *pdMsg;
-	//gdpckt.asteroidDataMsgs;
-
-	if (isDebugMode)
-	{
-		initDebugMode();
-	}
 }
 
 Level::~Level()
@@ -71,33 +62,6 @@ void Level::initLevel()
 	initBackground();
 	initUI();
 	initPlayer();
-	//initAsteroids();
-}
-
-void Level::initDebugMode()
-{
-	// Player debug collision box
-	player1ColBox.setFillColor(sf::Color(0, 0, 0, 0));
-	player1ColBox.setOutlineColor(sf::Color::Red);
-	player1ColBox.setOutlineThickness(1.0f);
-
-	// Set the collision box origin to be the top left of the sprites local coords, this is
-	// based on the already defined collision box which was defined during object creation
-	player1ColBox.setPosition(sf::Vector2f(player1->getCollisionBox().left, player1->getCollisionBox().top));
-	player1ColBox.setSize(sf::Vector2f(player1->getCollisionBox().width, player1->getCollisionBox().height));
-
-	// Create a new asteroid collision box
-	asteroidColBoxes.push_back(sf::RectangleShape());
-
-	// Asteroids debug collision boxes
-	asteroidColBoxes[0].setFillColor(sf::Color(0, 0, 0, 0));
-	asteroidColBoxes[0].setOutlineColor(sf::Color::Magenta);
-	asteroidColBoxes[0].setOutlineThickness(1.0f);
-
-	// Set the collision box origin to be the top left of the sprites local coords, this is
-	// based on the already defined collision box which was defined during object creation
-	asteroidColBoxes[0].setPosition(sf::Vector2f(asteroids[0]->getCollisionBox().left, asteroids[0]->getCollisionBox().top));
-	asteroidColBoxes[0].setSize(sf::Vector2f(asteroids[0]->getCollisionBox().width, asteroids[0]->getCollisionBox().height));
 }
 
 void Level::initBackground()
@@ -123,13 +87,6 @@ void Level::initAsteroids()
 	asteroids.push_back(new Asteroid(window));
 }
 
-void Level::spawnNewAsteroid()
-{
-	// If we get here it means the wave count was incremented, so spawn an asteroid
-	asteroids.push_back(new Asteroid(window));
-	createNewAsteroidColBox();
-}
-
 void Level::updateAsteroids(float dt)
 {
 	if (asteroidMsgs.size() > 0)
@@ -142,52 +99,15 @@ void Level::updateAsteroids(float dt)
 	}
 }
 
-//void Level::updateProjectiles(float dt)
-//{
-//	// Update all the projectiles using the data from the server
-//	for (int i = 0; i < projectiles.size(); ++i)
-//	{
-//		bool oob = projectiles[i]->update(dt);
-//
-//		if (oob)
-//		{
-//			std::cout << "Update - Projectile vector size is " << projectiles.size() << '\n';
-//
-//			// Create an iterator to the asteroid that has gone oob, as the asteroids all fall at the same speed
-//			// it will always be the first in the list
-//			auto iter1 = projectiles.begin();
-//			// Erase it from the vector
-//			projectiles.erase(iter1);
-//
-//			// Ensure collision box for this asteroid is also removed from the collision box vector
-//			auto iter2 = projectileColBoxes.begin();
-//			projectileColBoxes.erase(iter2);
-//
-//			std::cout << "Update - Projectile vector size is now " << projectiles.size() << '\n';
-//		}
-//	}
-//}
-
-void Level::updateDebugMode()
+void Level::updateProjectiles(float dt)
 {
-	// As these collision boxes are based off of sprites that have already been update using data
-	// from the server there is nothing more to do here
-	if (isDebugMode)
+	if (projectileMsgs.size() > 0)
 	{
-		// Update the players collision box
-		player1ColBox.setPosition(sf::Vector2f(player1->getCollisionBox().left, player1->getCollisionBox().top));
-
-		// Update all the asteroids collision boxes
-		for (int i = 0; i < asteroidColBoxes.size(); ++i)
+		for (int i = 0; i < projectiles.size(); i++)
 		{
-			asteroidColBoxes[i].setPosition(sf::Vector2f(asteroids[i]->getCollisionBox().left, asteroids[i]->getCollisionBox().top));
+			// Always update using back as that's the latest msg
+			projectiles[i]->update(dt, projectileMsgs[i]);
 		}
-
-		// Update all the asteroids collision boxes
-		/*for (int i = 0; i < projectileColBoxes.size(); ++i)
-		{
-			projectileColBoxes[i].setPosition(sf::Vector2f(projectiles[i]->getCollisionBox().left, projectiles[i]->getCollisionBox().top));
-		}*/
 	}
 }
 
@@ -205,6 +125,7 @@ void Level::update(float dt)
 	syncedTotalGameTime += dt;
 
 	// ############### NETWORK UPDATE ###############
+	// ######### PLAYER #########
 	playerUIpckt = player1->receivePlayerUIPacket();
 
 	// Sync the game time using the time from the first player data msg recvd, This only happens ONCE
@@ -231,7 +152,9 @@ void Level::update(float dt)
 		// Always pop front as that's the oldest msg
 		playerMsgs.pop_front();
 	}
+	// ######### PLAYER END #########
 
+	// ######### ASTEROIDS #########
 	asteroidsPckt = player1->recevieAsteroidPacket();
 
 	if (asteroidMsgs.size() > 0)
@@ -266,6 +189,46 @@ void Level::update(float dt)
 		asteroids.push_back(new Asteroid(window));
 	}
 
+	// ######### ASTEROIDS END #########
+
+	// ######### PROJECTILES #########
+	projectilesPckt = player1->recevieProjectilesPacket();
+
+	if (projectileMsgs.size() > 0)
+	{
+		// Clear the old data before refilling with latest data
+		projectileMsgs.clear();
+	}
+
+	if (projectiles.size() > 0)
+	{
+		// Delete all the old projectiles
+		for (int i = 0; i < projectiles.size(); ++i)
+		{
+			if (projectiles[i])
+			{
+				delete projectiles[i];
+				projectiles[i] = nullptr;
+			}
+		}
+
+		// Clear the projectiles vector
+		projectiles.clear();
+	}
+
+	// Fill the local vector with all the projectile data from the network packet
+	for (int i = 0; i < projectilesPckt.projectileDataMsgs.size(); ++i)
+	{
+		// Fill with latest data
+		projectileMsgs.push_back(projectilesPckt.projectileDataMsgs[i]);
+
+		// Create as many projectiles as there have been msgs recvd, this is currently a 1 to 1 relationship to keep things simple
+		// Spawned at the position that has been passed
+		projectiles.push_back(new Projectile(window, sf::Vector2f(projectileMsgs[i]->x, projectileMsgs[i]->y)));
+	}
+
+	// ######### PROJECTILES END #########
+
 	// ############### LOCAL UPDATE ###############
 	if (uidMsg)
 	{
@@ -286,20 +249,7 @@ void Level::update(float dt)
 	}
 
 	updateAsteroids(dt);
-
-	//updateProjectiles(dt);
-	//updateDebugMode();
-
-	/*if (player1->getPlayerScore() < 0)
-	{
-		gameState->setCurrentState(State::GAMEOVER);
-	}
-
-	if (asteroidSpawnTime >= 1.0f)
-	{
-		spawnNewAsteroid();
-		asteroidSpawnTime = 0.0f;
-	}*/
+	updateProjectiles(dt);
 }
 
 void Level::renderAsteroids()
@@ -311,31 +261,12 @@ void Level::renderAsteroids()
 	}
 }
 
-//void Level::renderProjectiles()
-//{
-//	// Draw all the projectiles
-//	for (int i = 0; i < projectiles.size(); i++)
-//	{
-//		window->draw(*projectiles[i]->getProjectileSprite());
-//	}
-//}
-
-void Level::renderDebugMode()
+void Level::renderProjectiles()
 {
-	// Draw all the debug magenta collision boxes
-	if (isDebugMode)
+	// Draw all the projectiles
+	for (int i = 0; i < projectiles.size(); i++)
 	{
-		window->draw(player1ColBox);
-
-		/*for (int i = 0; i < asteroidColBoxes.size(); ++i)
-		{
-			window->draw(asteroidColBoxes[i]);
-		}
-
-		for (int i = 0; i < projectileColBoxes.size(); ++i)
-		{
-			window->draw(projectileColBoxes[i]);
-		}*/
+		window->draw(*projectiles[i]->getProjectileSprite());
 	}
 }
 
@@ -350,11 +281,7 @@ void Level::render()
 	window->draw(*player1->getPlayerGhost());
 
 	renderAsteroids();
-	//renderProjectiles();
-
-	
-
-	//renderDebugMode();
+	renderProjectiles();
 
 	endDraw();
 }
@@ -375,34 +302,4 @@ void Level::loadTexture()
 	{
 		std::cout << "Error loading background texture.\n";
 	}
-}
-
-void Level::checkCollisions()
-{
-	// If player collides with an asteroid, set GAME_OVER state
-	for (int i = 0; i < asteroids.size(); ++i)
-	{
-		if (player1->getCollisionBox().intersects(asteroids[i]->getCollisionBox()))
-		{
-			gameState->setCurrentState(State::GAMEOVER);
-		}
-	}
-}
-
-void Level::createNewAsteroidColBox()
-{
-	// Create a new asteroid collision box
-	asteroidColBoxes.push_back(sf::RectangleShape());
-
-	// Access the last element in the vector, i.e. the one we just pushed back
-	int index = asteroidColBoxes.size() - 1;
-
-	asteroidColBoxes[index].setFillColor(sf::Color(0, 0, 0, 0));
-	asteroidColBoxes[index].setOutlineColor(sf::Color::Magenta);
-	asteroidColBoxes[index].setOutlineThickness(1.0f);
-
-	// Set the collision box origin to be the top left of the sprites local coords, this is
-	// based on the already defined collision box which was defined during object creation
-	asteroidColBoxes[index].setPosition(sf::Vector2f(asteroids[index]->getCollisionBox().left, asteroids[index]->getCollisionBox().top));
-	asteroidColBoxes[index].setSize(sf::Vector2f(asteroids[index]->getCollisionBox().width, asteroids[index]->getCollisionBox().height));
 }

@@ -16,29 +16,11 @@ Projectile::~Projectile()
 
 }
 
-//GameWorldData Projectile::networkUpdate(float dt, int projectileID)
-//{
-//	return packAsteroidData(dt, asteroidID);
-//}
-//
-//GameWorldData Projectile::packProjectileData(float dt, int projectileID)
-//{
-//	totalGameTime += dt;
-//	gwdMsg.asteroidID = asteroidID;
-//	gwdMsg.timeSent = totalGameTime;
-//	gwdMsg.x = projectileSprite.getPosition().x;
-//	gwdMsg.y = projectileSprite.getPosition().y;
-//
-//	return gwdMsg;
-//}
-
-bool Projectile::update(float dt)
+void Projectile::update(float dt, ProjectileDataMsg* projectileMsg)
 {
-	move();
-	projectileCollisionBox = sf::FloatRect(projectileSprite.getPosition().x - size.x * 0.5f, projectileSprite.getPosition().y - size.y * 0.5f, size.x, size.y);
-	bool oob = checkScreenBounds();
-
-	return oob;
+	velocity.x = projectileMsg->x - projectileSprite.getPosition().x;
+	velocity.y = projectileMsg->y - projectileSprite.getPosition().y;
+	projectileSprite.setPosition(projectileSprite.getPosition() + velocity);
 }
 
 void Projectile::render(sf::RenderWindow* window)

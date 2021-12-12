@@ -119,7 +119,19 @@ void Application::processWindowEvents()
             }
             case sf::Event::TextEntered:
             {
-                playerIPinput += event.text.unicode;
+                if (event.text.unicode == '\b')
+                {
+                    // Make sure there is text to delete
+                    if (playerIPinput.getSize() > 0)
+                    {
+                        playerIPinput.erase(playerIPinput.getSize() - 1, 2);
+                    }
+                } 
+                else
+                {
+                    playerIPinput += event.text.unicode;
+                }
+
                 SERVERIP = sf::IpAddress(playerIPinput);
             }
         }

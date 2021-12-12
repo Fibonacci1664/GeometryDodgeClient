@@ -44,7 +44,7 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
     {
         if (selector.isReady(tcpSocket))
         {
-            std::cout << "\n############### PLAYER AND UI DATA ###############\n\n";
+            //std::cout << "\n############### PLAYER AND UI DATA ###############\n\n";
 
             if (tcpSocket.receive(&playerUIpckt, sizeof(Player_UI_Data_Packet), received) != sf::Socket::Done)
             {
@@ -52,7 +52,7 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
                 return playerUIpckt;
             }
 
-            //std::cout << "Client side received: " << received << " bytes\n";
+           /* std::cout << "Client side received: " << received << " bytes\n";
 
             std::cout << "Score: " << playerUIpckt.uiData.score << "\n";
 
@@ -61,7 +61,7 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
                 << "Player X: " << playerUIpckt.playerData.x << '\n'
                 << "Player Y: " << playerUIpckt.playerData.y << '\n';
 
-            std::cout << "\n############### PLAYER AND UI DATA END ###############\n";
+            std::cout << "\n############### PLAYER AND UI DATA END ###############\n";*/
         }
     }
 
@@ -70,13 +70,11 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
 
 Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
 {
-    //sf::seconds(0.01f)
-
     if (selector.wait())
     {
         if (selector.isReady(tcpSocket))
         {
-            std::cout << "\n############### ASTEROID VECTOR SIZE DATA ###############\n\n";
+            //std::cout << "\n############### ASTEROID VECTOR SIZE DATA ###############\n\n";
 
             // Carry out a recv of the asteroid data msg vector size, this is just a single int
             if (tcpSocket.receive(&asteroidsPckt.asteroidDataMsgSize, sizeof(int), received) != sf::Socket::Done)
@@ -86,18 +84,18 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
             }
             else
             {
-                std::cout << "Asteroid data msg vector size: " << asteroidsPckt.asteroidDataMsgSize << '\n';
+                //std::cout << "Asteroid data msg vector size: " << asteroidsPckt.asteroidDataMsgSize << '\n';
             }
 
-            std::cout << "\n############### ASTEROID VECTOR SIZE DATA END ###############\n";
+            //std::cout << "\n############### ASTEROID VECTOR SIZE DATA END ###############\n";
 
             int size = asteroidsPckt.asteroidDataMsgSize;
 
-            std::cout << "\n############### ALL ASTEROID DATA ###############\n";
+            //std::cout << "\n############### ALL ASTEROID DATA ###############\n";
 
             if (size == 0)
             {
-                std::cout << "\n############### NO ASTEROID DATA TO RECEIVE ###############\n\n";
+               //std::cout << "\n############### NO ASTEROID DATA TO RECEIVE ###############\n\n";
             }
 
             // As we recv the latest 5 msgs everytime we need to clear the old data before repopulating the vec
@@ -118,16 +116,16 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
 
                 asteroidsPckt.asteroidDataMsgs.push_back(asteroidMsg);
 
-                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA ###############\n\n";
+                //std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA ###############\n\n";
 
                 // Print out to make sure what has been recvd is the same data
-                std::cout << "Asteroid ID: " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << '\n'
+                /*std::cout << "Asteroid ID: " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << '\n'
                           << "Msg time sent: " << asteroidsPckt.asteroidDataMsgs[i]->timeSent << '\n'
                           << "Asteroid X: " << asteroidsPckt.asteroidDataMsgs[i]->x << '\n'
                           << "Asteroid Y: " << asteroidsPckt.asteroidDataMsgs[i]->y << '\n'
                           << "Bytes received: " << received << "\n";
 
-                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA END ###############\n";
+                std::cout << "\n############### ASTEROID " << asteroidsPckt.asteroidDataMsgs[i]->asteroidID << " MSG DATA END ###############\n";*/
             }
 
             // Finally set the size in the Asteroid Data Packet to be the correct size
@@ -138,101 +136,70 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
     return asteroidsPckt;
 }
 
-//UIDataMsg* NetworkManager::receiveUIData()
-//{
-//    if (selector.wait(sf::seconds(0.01f)))
-//    {
-//        if (selector.isReady(tcpSocket))
-//        {
-//            std::cout << "About to recv UI data\n";
-//
-//            if (tcpSocket.receive(UIMsg, sizeof(UIDataMsg), received) != sf::Socket::Done)
-//            {
-//                std::cout << "Client side error receiving UI Data using TCP!\n";
-//                return UIMsg;
-//            }
-//
-//            std::cout << "Client side received: " << received << " bytes\n";
-//
-//            std::cout << "Score: " << UIMsg->score << '\n';
-//        }
-//    }
-//
-//    return UIMsg;
-//}
-//
-//PlayerDataMsg* NetworkManager::receivePlayerData()
-//{
-//    if (selector.wait(sf::seconds(0.01f)))
-//    {
-//        if (selector.isReady(tcpSocket))
-//        {
-//            std::cout << "About to recv player data\n";
-//
-//            if (tcpSocket.receive(playerDataRecv, sizeof(PlayerDataMsg), received) != sf::Socket::Done)
-//            {
-//                std::cout << "Client side error receiving Player Data using TCP!\n";
-//                return playerDataRecv;
-//            }
-//
-//            std::cout << "Client side received: " << received << " bytes\n";
-//
-//            std::cout << "Player ID: " << playerDataRecv->playerID << '\n'
-//                << "Msg time sent: " << playerDataRecv->timeSent << '\n'
-//                << "Player X: " << playerDataRecv->x << '\n'
-//                << "Player Y: " << playerDataRecv->y << '\n';
-//        }
-//    }
-//
-//    return playerDataRecv;
-//}
+Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
+{
+    if (selector.wait())
+    {
+        if (selector.isReady(tcpSocket))
+        {
+            //std::cout << "\n############### PROJECTILE VECTOR SIZE DATA ###############\n\n";
 
-//GameWorldData NetworkManager::receiveGameWorldData()
-//{
-//    GameWorldData gameDataRecv;
-// //   sf::SocketSelector selector;
-// //   selector.add(tcpSocket);
-//
-// //   std::cout << "About to wait on socket game world data Client Side\n";
-//
-//	//// Make the selector wait for data on any socket
-// //   if (selector.wait())
-// //   {
-// //       if (selector.isReady(tcpSocket))
-// //       {
-// //           std::cout << "About to recv game world data Client Side\n";
-//
-// //           if (tcpSocket.receive(&gameDataRecv, sizeof(GameWorldData), received) != sf::Socket::Done)
-// //           {
-// //               std::cout << "Client side error receiving Game World Data using TCP!\n";
-// //               return gameDataRecv;
-// //           }
-//
-// //           std::cout << "Client side received game world data: " << received << " bytes\n";
-//
-// //           std::cout << "Asteroid ID: " << gameDataRecv.asteroidID << '\n'
-// //               << "Msg time sent: " << gameDataRecv.timeSent << '\n'
-// //               << "Asteroid X: " << gameDataRecv.x << '\n'
-// //               << "Asteroid Y: " << gameDataRecv.y << '\n';
-// //       }
-// //   }
-//
-//    std::cout << "About to recv game world data Client Side\n";
-//
-//    tcpSocket.setBlocking(false);
-//
-//    if (tcpSocket.receive(&gameDataRecv, sizeof(GameWorldData), received) != sf::Socket::Done)
-//    {
-//        std::cout << "Client side error receiving Game World Data using TCP!\n";
-//        return gameDataRecv;
-//    }
-//
-//    std::cout << "Client side received game world data: " << received << " bytes\n";
-//
-//    std::cout << "Asteroid ID: " << gameDataRecv.asteroidID << '\n'
-//        << "Msg time sent: " << gameDataRecv.timeSent << '\n'
-//        << "Asteroid X: " << gameDataRecv.x << '\n'
-//        << "Asteroid Y: " << gameDataRecv.y << '\n';
-//
-//    return gameDataRecv;
-//}
+            // Carry out a recv of the projectile data msg vector size, this is just a single int
+            if (tcpSocket.receive(&projectilesPckt.projectileDataMsgSize, sizeof(int), received) != sf::Socket::Done)
+            {
+                std::cout << "Client side error receiving projectile msgs vector size using TCP!\n";
+                return projectilesPckt;
+            }
+            else
+            {
+                //std::cout << "Projectile data msg vector size: " << projectilesPckt.projectileDataMsgSize << '\n';
+            }
+
+            //std::cout << "\n############### PROJECTILE VECTOR SIZE DATA END ###############\n";
+
+            int size = projectilesPckt.projectileDataMsgSize;
+
+            //std::cout << "\n############### ALL PROJECTILE DATA ###############\n";
+
+            if (size == 0)
+            {
+                //std::cout << "\n############### NO PROJECTILE DATA TO RECEIVE ###############\n\n";
+            }
+
+            // As we recv the latest 5 msgs everytime we need to clear the old data before repopulating the vec
+            // Otherwise we end up with duplicates.
+            projectilesPckt.projectileDataMsgs.clear();
+
+            // Carry out a loop to recv all projectile data from the packet
+            for (int i = 0; i < size; ++i)
+            {
+                ProjectileDataMsg* projectileMsg = new ProjectileDataMsg;
+
+                // Carry out a recv of the projectile data msg
+                if (tcpSocket.receive(projectileMsg, sizeof(ProjectileDataMsg), received) != sf::Socket::Done)
+                {
+                    std::cout << "Client side error receiving projectile msgs using TCP!\n";
+                    return projectilesPckt;
+                }
+
+                projectilesPckt.projectileDataMsgs.push_back(projectileMsg);
+
+                //std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA ###############\n\n";
+
+                //// Print out to make sure what has been recvd is the same data
+                //std::cout << "Projectile ID: " << projectilesPckt.projectileDataMsgs[i]->projectileID << '\n'
+                //    << "Msg time sent: " << projectilesPckt.projectileDataMsgs[i]->timeSent << '\n'
+                //    << "Projectile X: " << projectilesPckt.projectileDataMsgs[i]->x << '\n'
+                //    << "Projectile Y: " << projectilesPckt.projectileDataMsgs[i]->y << '\n'
+                //    << "Bytes received: " << received << "\n";
+
+                //std::cout << "\n############### PROJECTILE " << projectilesPckt.projectileDataMsgs[i]->projectileID << " MSG DATA END ###############\n";
+            }
+
+            // Finally set the size in the Projectile Data Packet to be the correct size
+            projectilesPckt.projectileDataMsgSize = projectilesPckt.projectileDataMsgs.size();
+        }
+    }
+
+    return projectilesPckt;
+}

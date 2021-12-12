@@ -8,6 +8,7 @@
 #include "Projectile.h"
 #include "NetworkManager.h"
 #include "UIDataMsg.h"
+#include "Projectiles_Data_Packet.h"
 
 class Level : public Screen
 {
@@ -20,7 +21,7 @@ public:
 	void render() override;
 
 private:
-	void initDebugMode();
+	//void initDebugMode();
 	void initBackground();
 	void initUI();
 	void initLevel();
@@ -28,18 +29,18 @@ private:
 	void initAsteroids();
 
 	void updateAsteroids(float dt);
-	//void updateProjectiles(float dt);
-	void updateDebugMode();
+	void updateProjectiles(float dt);
+	//void updateDebugMode();
 
 	void renderAsteroids();
-	//void renderProjectiles();
-	void renderDebugMode();
+	void renderProjectiles();
+	//void renderDebugMode();
 
-	void spawnNewAsteroid();
+	//void spawnNewAsteroid();
 
-	void checkCollisions();
+	//void checkCollisions();
 
-	void createNewAsteroidColBox();
+	//void createNewAsteroidColBox();
 
 	void beginDraw();
 	void endDraw();
@@ -49,11 +50,11 @@ private:
 	UI* ui;
 	Player* player1;
 	std::vector<Asteroid*> asteroids;
-	//std::vector<Projectile*> projectiles;
+	std::vector<Projectile*> projectiles;
 	sf::Texture bgTexture;
 	sf::Sprite bgSprite;
-	sf::RectangleShape player1ColBox;
-	std::vector<sf::RectangleShape> asteroidColBoxes;
+	//sf::RectangleShape player1ColBox;
+	//std::vector<sf::RectangleShape> asteroidColBoxes;
 	//std::vector<sf::RectangleShape> projectileColBoxes;
 
 	// #### NETWORK STUFF ####
@@ -66,9 +67,11 @@ private:
 	UIDataMsg* uidMsg;
 	// For recv asteroid data into
 	std::vector<AsteroidDataMsg*> asteroidMsgs;
+	std::vector<ProjectileDataMsg*> projectileMsgs;
 
 	Player_UI_Data_Packet playerUIpckt;
 	Asteroids_Data_Packet asteroidsPckt;
+	Projectiles_Data_Packet projectilesPckt;
 
 	bool isConnected = false;
 	bool haveRecvNetUpdate = false;
