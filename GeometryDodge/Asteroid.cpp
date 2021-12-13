@@ -1,15 +1,30 @@
+/*
+ * This is the Asteroid class and handles
+ *		- Initilaising a single asteroid.
+ *		- Moving / updating the asteroid.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #include "Asteroid.h"
 #include <iostream>
 #include <cstdlib>
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// CONSTRUCTOR / DESTRUCTOR
 Asteroid::Asteroid(sf::RenderWindow* hwnd) : window(hwnd)
 {
 	position = sf::Vector2f(0.0f, 0.0f);
 	velocity = sf::Vector2f(0.0f, 0.0f);
-	speed = 200.0f;
+	/*speed = 200.0f;
 	randXPos = rand() % 1780 + 50;
-	randYPos = rand() % 620 + 50;
+	randYPos = rand() % 620 + 50;*/
 
 	initAsteroid();
 }
@@ -19,6 +34,9 @@ Asteroid::~Asteroid()
 	
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// FUNCTIONS
 void Asteroid::update(float dt, AsteroidDataMsg* asteroidMsg)
 {
 	velocity.x = asteroidMsg->x - asteroidSprite.getPosition().x;
@@ -26,10 +44,14 @@ void Asteroid::update(float dt, AsteroidDataMsg* asteroidMsg)
 	asteroidSprite.setPosition(asteroidSprite.getPosition() + velocity);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Asteroid::render(sf::RenderWindow* window)
 {
 	window->draw(asteroidSprite);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Asteroid::initAsteroid()
 {
@@ -41,6 +63,8 @@ void Asteroid::initAsteroid()
 	collisionBox = sf::FloatRect(asteroidSprite.getPosition().x - size.x * 0.5f, asteroidSprite.getPosition().y - size.y * 0.5f, size.x, size.y);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Asteroid::loadTexture()
 {
 	if (!asteroidTexture.loadFromFile("res/gfx/asteroids/asterGreySml.png"))
@@ -49,41 +73,51 @@ void Asteroid::loadTexture()
 	}
 }
 
-void Asteroid::checkScreenBounds()
-{
-	// If we hit the left or right edges of the screen
-	if ((asteroidSprite.getPosition().x + (size.x * 0.5f) > window->getSize().x && velocity.x > 0) ||
-		(asteroidSprite.getPosition().x - (size.x * 0.5f) < 0 && velocity.x < 0))
-	{
-		// Bounce off by negating the current velocity
-		velocity.x = -velocity.x;
-	}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// If we hit the top or btm edges of the screen
-	if ((asteroidSprite.getPosition().y + (size.y * 0.5f) > window->getSize().y && velocity.y > 0) ||
-		(asteroidSprite.getPosition().y - (size.y * 0.5f) < 0 && velocity.y < 0))
-	{
-		// Bounce off by negating the current velocity
-		velocity.y = -velocity.y;
-	}
-}
+//void Asteroid::checkScreenBounds()
+//{
+//	// If we hit the left or right edges of the screen
+//	if ((asteroidSprite.getPosition().x + (size.x * 0.5f) > window->getSize().x && velocity.x > 0) ||
+//		(asteroidSprite.getPosition().x - (size.x * 0.5f) < 0 && velocity.x < 0))
+//	{
+//		// Bounce off by negating the current velocity
+//		velocity.x = -velocity.x;
+//	}
+//
+//	// If we hit the top or btm edges of the screen
+//	if ((asteroidSprite.getPosition().y + (size.y * 0.5f) > window->getSize().y && velocity.y > 0) ||
+//		(asteroidSprite.getPosition().y - (size.y * 0.5f) < 0 && velocity.y < 0))
+//	{
+//		// Bounce off by negating the current velocity
+//		velocity.y = -velocity.y;
+//	}
+//}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Asteroid::move()
 {
 	asteroidSprite.setPosition(asteroidSprite.getPosition() + velocity);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 sf::Sprite* Asteroid::getAsteroidSprite()
 {
 	return &asteroidSprite;
 }
 
-sf::FloatRect Asteroid::getCollisionBox()
-{
-	return collisionBox;
-}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Asteroid::setCollisionBox(float x, float y, float width, float height)
-{
-	collisionBox = sf::FloatRect(x, y, width, height);
-}
+//sf::FloatRect Asteroid::getCollisionBox()
+//{
+//	return collisionBox;
+//}
+//
+//void Asteroid::setCollisionBox(float x, float y, float width, float height)
+//{
+//	collisionBox = sf::FloatRect(x, y, width, height);
+//}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

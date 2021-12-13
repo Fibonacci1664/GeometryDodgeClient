@@ -3,7 +3,7 @@
  *
  * Original @author D. Green.
  *
- * © D. Green. 2020.
+ * © D. Green. 2021.
  */
 
  // INCLUDES.
@@ -33,7 +33,7 @@ Screen::~Screen()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// FUNCTIONS.
+// FUNCTIONS
 void Screen::handleInput(float dt)
 {
 
@@ -71,22 +71,6 @@ void Screen::endDraw()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Create a custom cursor.
-void Screen::initCursor()
-{
-	/*if (!cursorTexture.loadFromFile("gfx/level/cursor.png"))
-	{
-		std::cerr << "Sorry could not load cursor icon!\n";
-	}
-	customCursor.setInput(input);
-	customCursor.setWindow(window);
-	customCursor.setTexture(&cursorTexture);
-	customCursor.setSize(sf::Vector2f(25.6f, 25.6f));
-	customCursor.setOrigin(sf::Vector2f(customCursor.getSize().x, 0));*/
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 State Screen::getGameState()
 {
 	return gameState->getCurrentState();
@@ -97,34 +81,6 @@ State Screen::getGameState()
 void Screen::setGameState(State s)
 {
 	gameState->setCurrentState(s);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Check for bounding box collision with a point/vector2 rather than two boxes.
-bool Screen::checkMouseCollisions(sf::RectangleShape* s1, sf::Vector2f s2)
-{
-	if ((s1->getGlobalBounds().left + s1->getGlobalBounds().width) < s2.x)
-	{
-		return false;
-	}
-
-	if (s1->getGlobalBounds().left > s2.x)
-	{
-		return false;
-	}
-
-	if (s1->getGlobalBounds().top + s1->getGlobalBounds().height < s2.y)
-	{
-		return false;
-	}
-
-	if (s1->getGlobalBounds().top > s2.y)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,34 @@
+/*
+ * This is the Level class and handles
+ *		- Initialising all level components, including:
+ *				*	Background
+ *				*	UI
+ *				*	Player
+ *				*	Asteroids
+ *		- Updating/Spawning level components.
+ *		- Receving all game data from the observer and by extension the network.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #include "Level.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// CONSTRUCTOR / DESTRUCTOR
 Level::Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs) :
 	Screen(hwnd, controller_0, gs)
 {
+	timeSynced = false;
+	isConnected = false;
+
 	localTotalGameTime = 0.0f;
+	syncedTotalGameTime = 0.0f;
 
 	uidMsg = new UIDataMsg;
 
@@ -14,18 +39,6 @@ Level::Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs) :
 
 Level::~Level()
 {
-	if (ui)
-	{
-		delete ui;
-		ui = nullptr;
-	}
-
-	if (player1)
-	{
-		delete player1;
-		player1 = nullptr;
-	}
-
 	for (int i = 0; i < asteroids.size(); ++i)
 	{
 		if (asteroids[i])
@@ -35,34 +48,39 @@ Level::~Level()
 		}
 	}
 
-	/*for (int i = 0; i < projectiles.size(); ++i)
+	for (int i = 0; i < projectiles.size(); ++i)
 	{
 		if (projectiles[i])
 		{
 			delete projectiles[i];
 			projectiles[i] = nullptr;
 		}
-	}*/
+	}
 
-	/*if (pdMsg)
+	if (observer)
 	{
-		delete pdMsg;
-		pdMsg = nullptr;
-	}*/
+		delete observer;
+		observer = nullptr;
+	}
 
-	if (uidMsg)
+	if (ui)
 	{
-		delete uidMsg;
-		uidMsg = nullptr;
+		delete ui;
+		ui = nullptr;
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// FUNCTIONS
 void Level::initLevel()
 {
 	initBackground();
 	initUI();
 	initPlayer();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Level::initBackground()
 {
@@ -72,20 +90,28 @@ void Level::initBackground()
 	bgSprite.setScale(5.0f, 2.8125f);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::initUI()
 {
 	ui = new UI;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::initPlayer()
 {
-	player1 = new Player(1, window);
+	observer = new Observer(1, window);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Level::initAsteroids()
 {
 	asteroids.push_back(new Asteroid(window));
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Level::updateAsteroids(float dt)
 {
@@ -99,6 +125,8 @@ void Level::updateAsteroids(float dt)
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::updateProjectiles(float dt)
 {
 	if (projectileMsgs.size() > 0)
@@ -111,11 +139,13 @@ void Level::updateProjectiles(float dt)
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::update(float dt)
 {
 	if (!isConnected)
 	{
-		player1->connect(1);
+		observer->connect(1);
 		isConnected = true;
 	}
 
@@ -124,9 +154,33 @@ void Level::update(float dt)
 	// Keep updating the synced time with the local delta time
 	syncedTotalGameTime += dt;
 
-	// ############### NETWORK UPDATE ###############
-	// ######### PLAYER #########
-	playerUIpckt = player1->receivePlayerUIPacket();
+	// ################################################################### NETWORK UPDATE ############################################################
+	// ################################################################### PLAYER AND UI #############################################################
+	playerUIpckt = observer->receivePlayerUIPacket();
+
+	// ################################################################### KNOWN BUG AREA!! ##########################################################
+	// IF THE TIMING IS GOOD THEN WHEN THE SERVER SIDE TRIGGERS THE GAME OVER STATE AND SENDS ITS
+	// FINAL PLAYER AND UI DATA MSG, THE CLIENT SIDE WILL ALSO TRIGGER THE GAME OVER STATE AND EVERYTHING RESETS
+	// THE CLIENT NEEDS TO RECONNECT ONCE AGAIN, AS WHEN EVERYTHING RESETS EVERYTHING IS DELETED AND CREATED A NEW, NOT IDEAL!
+	// Check what the UI data (score) was that was most recently received
+	// If it was -1 then trigger the game over state and do NOT try and receive anymore msgs
+	// Trying to receive more msgs will result in waiting or blocking due to no data having been sent
+	if (playerUIpckt.uiData.score < 0 || playerUIpckt.playerData.collideWithAsteroid)
+	{
+		int currentGameState = observer->receiveGameState();
+
+		if (currentGameState == 2)
+		{
+			gameState->setCurrentState(State::GAMEOVER);
+			return;
+		}
+	}
+
+	// HOWEVER, IF THE GAME OVER STATE IS TRIGGERED ON THE SERVER SIDE AT THIS POINT ON THE CLIENT SIDE
+	// WE STILL END UP WAITING / BLOCKING, RESUTLING IN A FREEZE FOR THE CLIENTS DISPLAY - THIS IS A BUG THAT NEEDS FIXING!!!
+	// WE CANNOT BE RELIANT ON HOPE THAT THE UPDATE LOOP IS AT THE CORRECT PLACE TO EXECUTE THE DESIRED BEHAVIOUR!
+	// ################################################################### KNOWN BUG AREA!! END ########################################################
+
 
 	// Sync the game time using the time from the first player data msg recvd, This only happens ONCE
 	if (!timeSynced)
@@ -152,14 +206,14 @@ void Level::update(float dt)
 		// Always pop front as that's the oldest msg
 		playerMsgs.pop_front();
 	}
-	// ######### PLAYER END #########
+	// ################################################################### PLAYER AND UI END #########################################################
 
-	// ######### ASTEROIDS #########
-	asteroidsPckt = player1->recevieAsteroidPacket();
+	// ################################################################### ASTEROIDS #################################################################
+	asteroidsPckt = observer->recevieAsteroidPacket();
 
 	if (asteroidMsgs.size() > 0)
 	{
-		// Clear the old data before refilling with latest data
+		// Clear the old data msgs before refilling with latest data
 		asteroidMsgs.clear();
 	}
 
@@ -189,14 +243,14 @@ void Level::update(float dt)
 		asteroids.push_back(new Asteroid(window));
 	}
 
-	// ######### ASTEROIDS END #########
+	// ################################################################### ASTEROIDS END #############################################################
 
-	// ######### PROJECTILES #########
-	projectilesPckt = player1->recevieProjectilesPacket();
+	// ################################################################### PROJECTILES ###############################################################
+	projectilesPckt = observer->recevieProjectilesPacket();
 
 	if (projectileMsgs.size() > 0)
 	{
-		// Clear the old data before refilling with latest data
+		// Clear the old data msgs before refilling with latest data
 		projectileMsgs.clear();
 	}
 
@@ -227,9 +281,10 @@ void Level::update(float dt)
 		projectiles.push_back(new Projectile(window, sf::Vector2f(projectileMsgs[i]->x, projectileMsgs[i]->y)));
 	}
 
-	// ######### PROJECTILES END #########
+	// ################################################################### PROJECTILES END ###########################################################
+	// ################################################################### NETWORK UPDATE END ########################################################
 
-	// ############### LOCAL UPDATE ###############
+	// ################################################################### LOCAL UPDATE ##############################################################
 	if (uidMsg)
 	{
 		ui->update(dt, uidMsg);
@@ -238,27 +293,23 @@ void Level::update(float dt)
 	if (pdMsg)
 	{
 		// Update player with latest msg
-		player1->update(dt, playerMsgs.back());
+		observer->update(dt, playerMsgs.back());
 
 		// Don't try and run any prediction until we have at least 3 msgs
 		if (playerMsgs.size() >= 3)
 		{
 			// Update ghost using the past 3 player data msgs to run prediction
-			player1->runPredition(syncedTotalGameTime, playerMsgs);
+			observer->runPredition(syncedTotalGameTime, playerMsgs);
 		}
 	}
 
 	updateAsteroids(dt);
 	updateProjectiles(dt);
 
-	//// Check this after ALL other recvs are complete
-	//int currentGameState = player1->receiveGameState();
-
-	//if (currentGameState == 2)
-	//{
-	//	gameState->setCurrentState(State::GAMEOVER);
-	//}
+	// ################################################################### LOCAL UPDATE END ##########################################################
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Level::renderAsteroids()
 {
@@ -269,6 +320,8 @@ void Level::renderAsteroids()
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::renderProjectiles()
 {
 	// Draw all the projectiles
@@ -278,31 +331,37 @@ void Level::renderProjectiles()
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::render()
 {
 	beginDraw();
 
-	// Render stuff here
 	window->draw(bgSprite);
 	window->draw(*ui->getScoreText());
-	window->draw(*player1->getPlayerSprite());
-	window->draw(*player1->getPlayerGhost());
-
+	window->draw(*observer->getPlayerSprite());
+	window->draw(*observer->getPlayerGhost());
 	renderAsteroids();
 	renderProjectiles();
 
 	endDraw();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::beginDraw()
 {
 	window->clear(sf::Color::Black);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Level::endDraw()
 {
 	window->display();
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Level::loadTexture()
 {
@@ -311,3 +370,5 @@ void Level::loadTexture()
 		std::cout << "Error loading background texture.\n";
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

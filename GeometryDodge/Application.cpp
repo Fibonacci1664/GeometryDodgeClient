@@ -1,10 +1,31 @@
+/*
+ * This is the Application class and handles
+ *		- Window creation.
+ *		- Polling window events.
+ *		- The main game loop.
+ *		- Creation, updating and deletion of all Screen objects.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #include "Application.h"
 #include <iostream>
 
+// GLOBALS
 sf::IpAddress SERVERIP;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// CONSTRUCTOR / DESTRUCTOR
 Application::Application(int width, int height) : windowWidth(width), windowHeight(height)
 {
+    displayGameOverTimer = 0.0f;
+
     initWindow();
 }
 
@@ -23,6 +44,9 @@ Application::~Application()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// FUNCTIONS
 void Application::initWindow()
 {
     window.create(sf::VideoMode(windowWidth, windowHeight), "Client Asteroid Dodge!");
@@ -38,6 +62,8 @@ void Application::initWindow()
     // Place the viewing window in the centre of the screen
     window.setPosition(sf::Vector2i((nativeScreenWidth * 0.5f) - (windowWidth * 0.5f), (nativeScreenHeight * 0.5f) - (windowHeight * 0.5f)));
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Application::run()
 {
@@ -92,12 +118,13 @@ void Application::run()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Application::processWindowEvents()
 {
     // Check all the window's events that were triggered since the last iteration of the loop
     sf::Event event;
     unsigned int n_buts = 0;
-    //window.setJoystickThreshold(2.0f);        // This doesn't do anything, threshold is controlled in Input class
 
     while (window.pollEvent(event))
     {
@@ -123,11 +150,6 @@ void Application::processWindowEvents()
             }
             case sf::Event::KeyPressed:
             {
-                /*if (sf::Keyboard::Backspace)
-                {
-                    playerIPinput.erase(playerIPinput.getSize() - 1, 1);
-                }*/
-
                 input.setKeyDown(event.key.code);
                 break;
             }
@@ -157,6 +179,8 @@ void Application::processWindowEvents()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool Application::runGameLoop(Level* level, Menu* menu, GameOver* gameOver, float deltaTime)
 {
     bool gameEnd = false;
@@ -183,8 +207,6 @@ bool Application::runGameLoop(Level* level, Menu* menu, GameOver* gameOver, floa
             gameOver->update(deltaTime);
             gameOver->render();
             break;
-
-            break;
         }
     }
 
@@ -197,3 +219,5 @@ bool Application::runGameLoop(Level* level, Menu* menu, GameOver* gameOver, floa
 
     return false;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

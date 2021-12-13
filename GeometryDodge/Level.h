@@ -1,7 +1,25 @@
+/*
+ * This is the Level class and handles
+ *		- Initialising all level components, including:
+ *				*	Background
+ *				*	UI
+ *				*	Player
+ *				*	Asteroids
+ *		- Updating/Spawning level components.
+ *		- Receving all game data from the observer.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #pragma once
 #include "GameState.h"
 #include "Screen.h"
-#include "Player.h"
+#include "Observer.h"
 #include "UI.h"
 #include "Asteroid.h"
 #include <list>
@@ -10,10 +28,12 @@
 #include "UIDataMsg.h"
 #include "Projectiles_Data_Packet.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Level : public Screen
 {
 public:
-	Level() {}
+	//Level() {}
 	Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs);
 	~Level();
 
@@ -21,7 +41,6 @@ public:
 	void render() override;
 
 private:
-	//void initDebugMode();
 	void initBackground();
 	void initUI();
 	void initLevel();
@@ -40,32 +59,32 @@ private:
 	void loadTexture();
 
 	UI* ui;
-	Player* player1;
+	Observer* observer;
 	std::vector<Asteroid*> asteroids;
 	std::vector<Projectile*> projectiles;
 	sf::Texture bgTexture;
 	sf::Sprite bgSprite;
 
 	// #### NETWORK STUFF ####
-	NetworkManager* network;
 	// For player prediction
 	std::list<PlayerDataMsg*> playerMsgs;
 	// For recv UI data into
 	UIDataMsg* uidMsg;
 	// For recv asteroid data into
 	std::vector<AsteroidDataMsg*> asteroidMsgs;
+	// For recv projectile data into
 	std::vector<ProjectileDataMsg*> projectileMsgs;
 
 	Player_UI_Data_Packet playerUIpckt;
 	Asteroids_Data_Packet asteroidsPckt;
 	Projectiles_Data_Packet projectilesPckt;
 
-	bool isConnected = false;
-	bool haveRecvNetUpdate = false;
-	bool isDebugMode;
+	bool timeSynced;
+	bool isConnected;
+
 	float localTotalGameTime;
-	float syncedTotalGameTime = 0.0f;
-	float networkUpdateTimer = 0.0f;
-	bool firstRecv = false;
-	bool timeSynced = false;
+	float syncedTotalGameTime;
+	
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

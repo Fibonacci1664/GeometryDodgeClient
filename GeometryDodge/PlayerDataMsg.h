@@ -1,12 +1,20 @@
+/*
+ * This is the PlayerDataMsg struct and handles
+ *		- Storing the player data
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 struct PlayerDataMsg
 {
-	// An ID number for this msg, used for sorting
-	//int msgID;
-
 	// An ID number associated with the corrosponding player
 	int playerID;
+	int collideWithAsteroid;		// int used as bool
 
 	// The positional data of this player
 	float x;
@@ -15,3 +23,5 @@ struct PlayerDataMsg
 	// The time this msg was sent
 	float timeSent;
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

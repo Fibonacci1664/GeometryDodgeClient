@@ -1,5 +1,19 @@
+/*
+ * This is the Network Manager class and handles
+ *		- Connects to Server.
+ *      - Receives all incoming data and returns this to the Observer and by extension the Level.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #include "NetworkManager.h"
 
+// CONSTRUCTOR / DESTRUCTOR
 NetworkManager::NetworkManager()
 {
     /*playerDataRecv = new PlayerDataMsg;
@@ -11,13 +25,12 @@ NetworkManager::NetworkManager()
 
 NetworkManager::~NetworkManager()
 {
-   /* if (playerDataRecv)
-    {
-        delete playerDataRecv;
-        playerDataRecv = nullptr;
-    }*/
+
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// FUNCTIONS
 void NetworkManager::connectToServer(int observerNum)
 {
     // Create TCP  
@@ -38,13 +51,18 @@ void NetworkManager::connectToServer(int observerNum)
     selector.add(tcpSocket);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
 {
     if (selector.wait())
     {
         if (selector.isReady(tcpSocket))
         {
-            //std::cout << "\n############### PLAYER AND UI DATA ###############\n\n";
+            if (printDataToConsole)
+            {
+                std::cout << "\n############### PLAYER AND UI DATA ###############\n\n";
+            }
 
             if (tcpSocket.receive(&playerUIpckt, sizeof(Player_UI_Data_Packet), received) != sf::Socket::Done)
             {
@@ -70,6 +88,8 @@ Player_UI_Data_Packet NetworkManager::receivePlayerUIPacket()
 
     return playerUIpckt;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
 {
@@ -148,6 +168,8 @@ Asteroids_Data_Packet NetworkManager::recevieAsteroidPacket()
     return asteroidsPckt;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
 {
     if (selector.wait())
@@ -225,9 +247,11 @@ Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
     return projectilesPckt;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int NetworkManager::receiveGameState()
 {
-    if (selector.wait())
+    if (selector.wait(sf::seconds(0.001)))
     {
         if (selector.isReady(tcpSocket))
         {
@@ -242,3 +266,5 @@ int NetworkManager::receiveGameState()
 
     return gameState;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

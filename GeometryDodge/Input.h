@@ -1,7 +1,21 @@
-#pragma once
+/*
+ * This class controls all aspects of Input including:
+ *		- Keyboard, which keys pressed/released.
+ *		- Mouse, buttons pressed & position.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
 
+ //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ // INCLUDES
+#pragma once
 #include<iostream>
 #include <SFML/System/Vector2.hpp>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Input
 {
@@ -17,11 +31,8 @@ public:
 	Input();
 	~Input();
 
-	// Functions for setting controller button as pressed, released and checking current state.
-	/*void setButtonDown(int buttonIndex, bool state);
-	void setButtonUp(int buttonIndex, bool state);*/
+	// Function for setting controller button as pressed, released and checking current state.
 	void setButtonState(int buttonIndex, bool state);
-
 	bool isButtonDown(int button);
 
 	// Functions for setting joystick positions
@@ -45,7 +56,7 @@ public:
 	bool isMouseRDown();
 
 private:
-	// Array of booleans representing buttons (pressed = true, released = false).
+	// Array of booleans representing buttons and keys (pressed = true, released = false).
 	bool buttons[32]{ false };
 	bool keys[256]{ false };
 	sf::Vector2f leftStickPos;

@@ -1,3 +1,16 @@
+/*
+ * This is the Asteroid class and handles
+ *		- Initilaising a single asteroid.
+ *		- Moving / updating the asteroid.
+ *
+ * Original @author D. Green.
+ *
+ * © D. Green. 2021.
+ */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// INCLUDES
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "AsteroidDataMsg.h"
@@ -11,13 +24,13 @@ public:
 	void update(float dt, AsteroidDataMsg* asteroidMsg);
 	void render(sf::RenderWindow* window);
 	sf::Sprite* getAsteroidSprite();
-	sf::FloatRect getCollisionBox();
-	void setCollisionBox(float x, float y, float width, float height);
+	/*sf::FloatRect getCollisionBox();
+	void setCollisionBox(float x, float y, float width, float height);*/
 
 private:
 	void initAsteroid();
 	void loadTexture();
-	void checkScreenBounds();
+	//void checkScreenBounds();
 	void move();
 	
 	sf::RenderWindow* window;
@@ -28,7 +41,9 @@ private:
 	sf::Vector2u size;
 	sf::FloatRect collisionBox;
 
-	float speed;
+	/*float speed;
 	int randXPos;
-	int randYPos;
+	int randYPos;*/
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
