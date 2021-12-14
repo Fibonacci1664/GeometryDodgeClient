@@ -197,7 +197,7 @@ void Level::update(float dt)
 	// If it was -1 then trigger the game over state and do NOT try and receive anymore msgs
 	// Trying to receive more msgs will result in waiting or blocking due to no data having been sent
 
-	/*if (playerUIpckt.uiData.score < 0 || playerUIpckt.playerData.collideWithAsteroid)
+	if (playerUIpckt.uiData.score < 0 || playerUIpckt.playerData.collideWithAsteroid)
 	{
 		int currentGameState = observer->receiveGameState();
 
@@ -206,7 +206,7 @@ void Level::update(float dt)
 			gameState->setCurrentState(State::GAMEOVER);
 			return;
 		}
-	}*/
+	}
 
 	// HOWEVER, IF THE GAME OVER STATE IS TRIGGERED ON THE SERVER SIDE AT THIS POINT ON THE CLIENT SIDE
 	// WE STILL END UP WAITING / BLOCKING, RESUTLING IN A FREEZE FOR THE CLIENTS DISPLAY - THIS IS A BUG THAT NEEDS FIXING!!!
