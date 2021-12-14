@@ -29,6 +29,7 @@ Level::Level(sf::RenderWindow* hwnd, Input* controller_0, GameState* gs) :
 
 	localTotalGameTime = 0.0f;
 	syncedTotalGameTime = 0.0f;
+	latency = 0.0;
 
 	uidMsg = new UIDataMsg;
 
@@ -146,6 +147,25 @@ void Level::update(float dt)
 	if (!isConnected)
 	{
 		observer->connect(1);
+
+		observer->sendForEcho();
+
+		// Create and start a clock to time how long the echo takes
+		sf::Clock latencyTimer;
+		float timer = 0.0f;
+
+		// Recv echo, this will wait until there is something to recv
+		int echoRecvd = observer->receiveEcho();
+
+		if (echoRecvd == 2)
+		{
+			// Stop the clock and update the latency value with how long the echo took
+			timer = latencyTimer.restart().asSeconds();
+			latency += timer;
+		}
+
+		std::cout << "Latency: " << latency << '\n';
+
 		isConnected = true;
 	}
 
@@ -158,6 +178,17 @@ void Level::update(float dt)
 	// ################################################################### PLAYER AND UI #############################################################
 	playerUIpckt = observer->receivePlayerUIPacket();
 
+	// Sync the game time. This only happens ONCE
+	if (!timeSynced)
+	{
+		// This is req for prediction, synced time = first time the data recvd was sent + (latency * 0.5)
+		syncedTotalGameTime = playerUIpckt.playerData.timeSent + (latency * 0.5f);
+
+		std::cout << "Synced time: " << syncedTotalGameTime << '\n';
+
+		timeSynced = true;
+	}
+	
 	// ################################################################### KNOWN BUG AREA!! ##########################################################
 	// IF THE TIMING IS GOOD THEN WHEN THE SERVER SIDE TRIGGERS THE GAME OVER STATE AND SENDS ITS
 	// FINAL PLAYER AND UI DATA MSG, THE CLIENT SIDE WILL ALSO TRIGGER THE GAME OVER STATE AND EVERYTHING RESETS
@@ -165,7 +196,8 @@ void Level::update(float dt)
 	// Check what the UI data (score) was that was most recently received
 	// If it was -1 then trigger the game over state and do NOT try and receive anymore msgs
 	// Trying to receive more msgs will result in waiting or blocking due to no data having been sent
-	if (playerUIpckt.uiData.score < 0 || playerUIpckt.playerData.collideWithAsteroid)
+
+	/*if (playerUIpckt.uiData.score < 0 || playerUIpckt.playerData.collideWithAsteroid)
 	{
 		int currentGameState = observer->receiveGameState();
 
@@ -174,21 +206,12 @@ void Level::update(float dt)
 			gameState->setCurrentState(State::GAMEOVER);
 			return;
 		}
-	}
+	}*/
 
 	// HOWEVER, IF THE GAME OVER STATE IS TRIGGERED ON THE SERVER SIDE AT THIS POINT ON THE CLIENT SIDE
 	// WE STILL END UP WAITING / BLOCKING, RESUTLING IN A FREEZE FOR THE CLIENTS DISPLAY - THIS IS A BUG THAT NEEDS FIXING!!!
 	// WE CANNOT BE RELIANT ON HOPE THAT THE UPDATE LOOP IS AT THE CORRECT PLACE TO EXECUTE THE DESIRED BEHAVIOUR!
 	// ################################################################### KNOWN BUG AREA!! END ########################################################
-
-
-	// Sync the game time using the time from the first player data msg recvd, This only happens ONCE
-	if (!timeSynced)
-	{
-		// This is req for prediction
-		syncedTotalGameTime = playerUIpckt.playerData.timeSent;
-		timeSynced = true;
-	}
 
 	uidMsg = &playerUIpckt.uiData;
 

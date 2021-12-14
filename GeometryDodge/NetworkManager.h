@@ -38,9 +38,13 @@ public:
 	~NetworkManager();
 
 	void connectToServer(int playerNumber);
+
+	void sendForEcho();
+
 	Player_UI_Data_Packet receivePlayerUIPacket();
 	Asteroids_Data_Packet recevieAsteroidPacket();
 	Projectiles_Data_Packet recevieProjectilesPacket();
+	int receiveEcho();
 	int receiveGameState();
 
 private:
@@ -55,6 +59,7 @@ private:
 	Asteroids_Data_Packet asteroidsPckt;
 	Projectiles_Data_Packet projectilesPckt;
 	int gameState;
+	int echo;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

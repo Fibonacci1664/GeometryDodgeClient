@@ -88,6 +88,20 @@ Projectiles_Data_Packet Observer::recevieProjectilesPacket()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Observer::sendForEcho()
+{
+	network->sendForEcho();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int Observer::receiveEcho()
+{
+	return network->receiveEcho();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int Observer::receiveGameState()
 {
 	return network->receiveGameState();
@@ -99,7 +113,7 @@ void Observer::update(float dt, PlayerDataMsg* pdm)
 {
 	// Update the player with data from server
 	playerSprite.setPosition(sf::Vector2f(pdm->x, pdm->y));
-	collisionBox = sf::FloatRect(playerSprite.getPosition().x - size.x * 0.4f, playerSprite.getPosition().y - size.y * 0.4f, size.x * 0.8f, size.y * 0.8f);
+	//collisionBox = sf::FloatRect(playerSprite.getPosition().x - size.x * 0.4f, playerSprite.getPosition().y - size.y * 0.4f, size.x * 0.8f, size.y * 0.8f);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +129,7 @@ void Observer::initPlayer()
 	playerSprite.setOrigin(size.x * 0.5f, size.y * 0.5f);
 	playerSprite.setPosition(sf::Vector2f(640.0f, 640.0f));
 	playerSprite.setScale(0.75f, 0.75f);
-	collisionBox = sf::FloatRect(playerSprite.getPosition().x - size.x * 0.4f, playerSprite.getPosition().y - size.y * 0.4f, size.x * 0.8f, size.y * 0.8f);
+	//collisionBox = sf::FloatRect(playerSprite.getPosition().x - size.x * 0.4f, playerSprite.getPosition().y - size.y * 0.4f, size.x * 0.8f, size.y * 0.8f);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +180,66 @@ void Observer::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs
 	predictedX = predictedVec.x;
 	predictedY = predictedVec.y;
 
+	PlayerDataMsg* predictedPos = new PlayerDataMsg;
+	predictedPos->playerID = msg0->playerID;				// Give the latest predicted pos the same ID as the latest msg
+	predictedPos->timeSent = gameTime;						// Save what time this prediction was made
+	predictedPos->x = predictedX;
+	predictedPos->y = predictedY;
+
+	predPosHistoryList.push_back(predictedPos);
+
+	// Keep a history of 5 predicted positions only
+	if (predPosHistoryList.size() > 5)
+	{
+		predPosHistoryList.pop_front();
+		predictedPosHistoryVec.clear(); // Clear old data
+
+		// Copy from list into vec, for ease of indexing
+		for (auto it = predPosHistoryList.begin(); it != predPosHistoryList.end(); ++it)
+		{
+			predictedPosHistoryVec.push_back(*it);
+		}
+	}
+
+	// If we now have at least 3 saved predicted positions
+	if (predictedPosHistoryVec.size() > 2)
+	{
+		float previousPredictedX = predictedPosHistoryVec[predictedPosHistoryVec.size() - 2]->x;
+		float previousPredictedY = predictedPosHistoryVec[predictedPosHistoryVec.size() - 2]->y;
+
+		// Compare the most recent predicted x and y with the previous entries, i.e. size() - 2
+		// If both x and y are the same then remove the most recent save
+		// We only want to keep data that is different
+		if (predictedX == previousPredictedX && predictedY == previousPredictedY)
+		{
+			predictedPosHistoryVec.pop_back();
+		}
+
+		// Once we have enough predicted positions i.e. at least 2, carry out predictions based on those predictions
+		float predictionOfPredictionX = -1.0f;
+		float predictionOfPredictionY = -1.0f;
+
+		const int predHistSize = predictedPosHistoryVec.size();
+
+		const PlayerDataMsg* predHistmsg0 = predictedPosHistoryVec[size_t(predHistSize) - 1];		// Latest msg
+		const PlayerDataMsg* predHistmsg1 = predictedPosHistoryVec[size_t(predHistSize) - 2];
+
+		sf::Vector2f predictionOfPrediction = linearPrediction(gameTime, predHistmsg0, predHistmsg1);
+
+		// Time difference between the data used for the first prediction and the data used for the prediction based on the prediction
+		float timeDiff = (predictedPos->timeSent - predHistmsg1->timeSent) / 0.5f;
+
+		predictionOfPredictionX = predictionOfPrediction.x;
+		predictionOfPredictionY = predictionOfPrediction.y;
+
+		float lerpX = lerp(predictedX, predictionOfPredictionX, timeDiff);
+		float lerpY = lerp(predictedY, predictionOfPredictionY, timeDiff);
+
+		// Ghost is for visualising the interpolation actually working
+		playerGhostSprite.setPosition(sf::Vector2f(lerpX, lerpY));
+		return;
+	}
+
 	if (printDataToConsole)
 	{
 		std::cout << "\n############### PLAYER PREDICTIONS ###############\n";
@@ -178,11 +252,21 @@ void Observer::runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs
 		std::cout << "\n############### PLAYER PREDICTIONS END ###############\n";
 	}
 
-	// Ghost is for visualising the prediction actually working
+	// Ghost is for visualising the prediction actually working, this will only happen when there is NOT enough msgs
+	// initially to run interpolation
 	playerGhostSprite.setPosition(sf::Vector2f(predictedX, predictedY));
 
 	// Use this to set the actual player to the predicted position
 	//playerSprite.setPosition(sf::Vector2f(predictedX, predictedY));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+float Observer::lerp(float v1, float v2, float time)
+{
+	return v1 + time * (v2 - v1);
+
+	//return (1 - time) * v1 + time * v2;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

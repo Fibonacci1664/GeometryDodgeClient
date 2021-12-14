@@ -249,6 +249,44 @@ Projectiles_Data_Packet NetworkManager::recevieProjectilesPacket()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void NetworkManager::sendForEcho()
+{
+    // Send the value 1
+    int value = 1;
+
+    // Send, for the purposes of receiving an echo to gauge latency
+    if (tcpSocket.send(&value, sizeof(int)) != sf::Socket::Done)
+    {
+        std::cout << "Error sending asteroid data msg size by TCP!\n";
+        return;
+    }
+
+    std::cout << "Value " << value << " sent\n";
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int NetworkManager::receiveEcho()
+{
+    if (selector.wait())
+    {
+        if (selector.isReady(tcpSocket))
+        {
+            // Carry out a recv of the game state, this is just a single int
+            if (tcpSocket.receive(&echo, sizeof(int), received) != sf::Socket::Done)
+            {
+                std::cout << "Client side error receiving echo using TCP!\n";
+                return -1;
+            }
+        }
+    }
+
+    // This SHOULD be the value 2
+    return echo;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int NetworkManager::receiveGameState()
 {
     if (selector.wait(sf::seconds(0.001)))

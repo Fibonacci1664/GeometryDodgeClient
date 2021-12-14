@@ -84,6 +84,7 @@ private:
 
 	float localTotalGameTime;
 	float syncedTotalGameTime;
+	float latency;
 	
 };
 

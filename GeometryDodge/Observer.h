@@ -49,6 +49,9 @@ public:
 	Player_UI_Data_Packet receivePlayerUIPacket();
 	Asteroids_Data_Packet recevieAsteroidPacket();
 	Projectiles_Data_Packet recevieProjectilesPacket();
+
+	void sendForEcho();
+	int receiveEcho();
 	int receiveGameState();
 
 	void runPredition(float gameTime, std::list<PlayerDataMsg*> playerMsgs);
@@ -62,6 +65,7 @@ public:
 	void setPlayerScore(int newScore);
 	
 private:
+	float lerp(float v1, float v2, float time);
 	sf::Vector2f linearPrediction(float gameTime, const PlayerDataMsg* msg0, const PlayerDataMsg* msg1);
 	void initPlayer();
 	void initGhost();
@@ -76,6 +80,9 @@ private:
 	sf::Vector2u size;
 	sf::FloatRect collisionBox;
 	std::vector<PlayerDataMsg*> plyrMsgs;
+	// For ease of controlling list size, i.e. pop_front()
+	std::list<PlayerDataMsg*> predPosHistoryList;
+	std::vector<PlayerDataMsg*> predictedPosHistoryVec;
 
 	// ###################################### NETWORK STUFF ######################################
 	NetworkManager* network;
